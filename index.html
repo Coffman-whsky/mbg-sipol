@@ -15,7 +15,7 @@
     <style>
         body { font-family: 'Inter', sans-serif; }
         /* Kustomisasi scrollbar untuk tabel responsive */
-        .table-container::-webkit-scrollbar { height: 8px; }
+        .table-container::-webkit-scrollbar { height: 6px; }
         .table-container::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
         
         /* Modal Transition */
@@ -25,179 +25,239 @@
         /* Pengaturan Print PDF agar baris tabel tidak terpotong antar halaman */
         tr { page-break-inside: avoid; }
         h2 { page-break-after: avoid; }
+        .keep-together { page-break-inside: avoid; }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800 p-4 lg:p-8">
+<body class="bg-gray-50 text-gray-800 p-2 sm:p-4 lg:p-8">
 
     <div id="app" class="max-w-7xl mx-auto relative">
         
         <!-- Wrapper area yang akan diekspor ke PDF -->
-        <div id="pdf-content" class="bg-gray-50 rounded-lg p-1">
+        <div id="pdf-content" class="bg-gray-50 rounded-lg p-1 sm:p-2">
             <!-- Header Section -->
-            <header class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <header class="mb-6 md:mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h1 class="text-2xl font-bold text-emerald-700">Kalkulator Bahan Baku Dapur</h1>
-                    <p class="text-gray-500 text-sm mt-1">Estimasi Kebutuhan Karbo, Protein, Serat & Lemak (Real-time)</p>
+                    <h1 class="text-xl md:text-2xl font-bold text-emerald-700">Kalkulator Bahan Baku Dapur</h1>
+                    <p class="text-gray-500 text-xs md:text-sm mt-1">Estimasi Kebutuhan Karbo, Protein, Sayur & Buah</p>
                 </div>
                 <!-- Tombol aksi (data-html2canvas-ignore agar tidak ikut ter-print di PDF) -->
-                <div class="flex gap-3 w-full md:w-auto" data-html2canvas-ignore="true">
+                <div class="flex gap-2 w-full md:w-auto" data-html2canvas-ignore="true">
                     <button 
                         @click="exportToPDF"
-                        class="flex-1 md:flex-none bg-blue-100 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-200 transition text-sm font-semibold flex items-center justify-center gap-2">
+                        class="flex-1 md:flex-none bg-blue-100 text-blue-700 px-3 md:px-4 py-2 rounded-lg hover:bg-blue-200 transition text-xs md:text-sm font-semibold flex items-center justify-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                         Export PDF
                     </button>
                     <button 
                         @click="confirmReset"
-                        class="flex-1 md:flex-none bg-red-100 text-red-600 px-4 py-2 rounded-lg hover:bg-red-200 transition text-sm font-semibold flex items-center justify-center gap-2">
+                        class="flex-1 md:flex-none bg-red-100 text-red-600 px-3 md:px-4 py-2 rounded-lg hover:bg-red-200 transition text-xs md:text-sm font-semibold flex items-center justify-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74-2.74L3 12"/></svg>
                         Reset
                     </button>
                 </div>
             </header>
 
-            <!-- Looping untuk merender 4 Tabel (Karbo, Protein, Serat, Lemak) -->
-            <div v-for="(table, tIndex) in tables" :key="tIndex" class="mb-10">
+            <!-- Looping untuk merender Tabel -->
+            <div v-for="(table, tIndex) in tables" :key="tIndex" class="mb-8 md:mb-10">
                 <!-- Judul Tabel -->
-                <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2" :class="table.colorText">
-                    <span class="p-1.5 rounded-lg" :class="table.colorBg" v-html="table.icon"></span>
+                <h2 class="text-lg md:text-xl font-bold text-gray-800 mb-3 md:mb-4 flex items-center gap-2" :class="table.colorText">
+                    <span class="p-1 md:p-1.5 rounded-lg" :class="table.colorBg" v-html="table.icon"></span>
                     {{ table.title }}
                 </h2>
 
                 <!-- Main Calculator Table -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                     <div class="table-container overflow-x-auto">
-                        <table class="w-full text-sm text-left">
-                            <thead class="bg-gray-100 text-gray-600 font-bold uppercase text-xs border-b">
+                        <table class="w-full text-xs md:text-sm text-left">
+                            <thead class="bg-gray-100 text-gray-600 font-bold uppercase text-[10px] md:text-xs border-b">
                                 <tr>
-                                    <th class="px-4 py-3 min-w-[150px] sticky left-0 bg-gray-100 z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">Kategori</th>
-                                    <th class="px-4 py-3 min-w-[120px]">Jml Porsi</th>
-                                    <th class="px-4 py-3 min-w-[140px]">{{ table.columnLabel }}</th>
-                                    <th class="px-4 py-3 min-w-[110px]">Gram/Porsi</th>
-                                    <th class="px-4 py-3 min-w-[110px]">Susut (%)</th>
-                                    <th class="px-4 py-3 min-w-[110px]">Safety (%)</th>
-                                    <th class="px-4 py-3 min-w-[150px]">Harga/Kg (Rp)</th>
-                                    <th class="px-4 py-3 min-w-[120px] text-right" :class="table.colorBg + ' ' + table.colorText">Total (Kg)</th>
-                                    <th class="px-4 py-3 min-w-[150px] text-right" :class="table.colorBg + ' ' + table.colorText">Total Biaya</th>
+                                    <th class="px-3 md:px-4 py-2 md:py-3 min-w-[120px] md:min-w-[150px] sticky left-0 bg-gray-100 z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">Kategori</th>
+                                    <th class="px-2 md:px-4 py-2 md:py-3 min-w-[100px] md:min-w-[120px]">Jml Porsi</th>
+                                    <th class="px-2 md:px-4 py-2 md:py-3 min-w-[140px] md:min-w-[170px]">{{ table.columnLabel }}</th>
+                                    <th class="px-2 md:px-4 py-2 md:py-3 min-w-[90px] md:min-w-[110px]">Gram/Porsi</th>
+                                    <th class="px-2 md:px-4 py-2 md:py-3 min-w-[90px] md:min-w-[110px]">Susut (%)</th>
+                                    <th class="px-2 md:px-4 py-2 md:py-3 min-w-[90px] md:min-w-[110px]">Safety (%)</th>
+                                    <th class="px-2 md:px-4 py-2 md:py-3 min-w-[120px] md:min-w-[150px]">Harga/Kg (Rp)</th>
+                                    <th class="px-2 md:px-4 py-2 md:py-3 min-w-[100px] md:min-w-[120px] text-right" :class="table.colorBg + ' ' + table.colorText">Total (Kg)</th>
+                                    <th class="px-3 md:px-4 py-2 md:py-3 min-w-[130px] md:min-w-[150px] text-right" :class="table.colorBg + ' ' + table.colorText">Total Biaya</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
                                 <tr v-for="(row, index) in table.rows" :key="index" class="hover:bg-gray-50 transition">
                                     
                                     <!-- Kategori (Static) -->
-                                    <td class="px-4 py-3 font-semibold text-gray-700 sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
+                                    <td class="px-3 md:px-4 py-2 md:py-3 font-semibold text-gray-700 sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
                                         {{ row.category }}
                                     </td>
 
                                     <!-- Input Jumlah Porsi -->
-                                    <td class="px-4 py-3">
+                                    <td class="px-2 md:px-4 py-2 md:py-3">
                                         <input 
                                             type="number" 
                                             v-model.number="row.portions"
                                             min="0" 
-                                            class="w-full border rounded px-2 py-1.5 focus:outline-none focus:ring-2 transition"
+                                            class="w-full border rounded px-1.5 md:px-2 py-1 md:py-1.5 focus:outline-none focus:ring-2 transition text-xs md:text-sm"
                                             :class="{'border-red-500 bg-red-50 text-red-600 focus:ring-red-500': row.portions > 3000, 'border-gray-300 focus:ring-gray-400': row.portions <= 3000}"
                                         >
-                                        <div v-if="row.portions > 3000" class="text-[10px] text-red-500 mt-1 font-bold">Max 3000!</div>
                                     </td>
 
-                                    <!-- Dropdown Bahan -->
-                                    <td class="px-4 py-3">
-                                        <select v-model="row.itemType" class="w-full border border-gray-300 rounded px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-gray-400 bg-white">
+                                    <!-- Dropdown Bahan & Input Manual -->
+                                    <td class="px-2 md:px-4 py-2 md:py-3">
+                                        <select v-model="row.itemType" class="w-full border border-gray-300 rounded px-1.5 md:px-2 py-1 md:py-1.5 focus:outline-none focus:ring-2 focus:ring-gray-400 bg-white text-xs md:text-sm" :class="{'mb-2': row.itemType === 'Lainnya (Isi Manual)'}">
                                             <option v-for="opt in table.options" :value="opt">{{ opt }}</option>
                                         </select>
+                                        <!-- Muncul jika memilih 'Lainnya' -->
+                                        <input 
+                                            v-if="row.itemType === 'Lainnya (Isi Manual)'" 
+                                            type="text" 
+                                            v-model="row.customItemName" 
+                                            placeholder="Ketik nama bahan..." 
+                                            class="w-full border border-emerald-400 rounded px-1.5 md:px-2 py-1 md:py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-emerald-50 text-xs md:text-sm"
+                                        >
                                     </td>
 
                                     <!-- Gram/Porsi -->
-                                    <td class="px-4 py-3 relative">
-                                        <input type="number" v-model.number="row.gramsPerPortion" min="0" class="w-full border border-gray-300 rounded px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-gray-400 pr-6">
-                                        <span class="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 text-xs">g</span>
+                                    <td class="px-2 md:px-4 py-2 md:py-3 relative">
+                                        <input type="number" v-model.number="row.gramsPerPortion" min="0" class="w-full border border-gray-300 rounded px-1.5 md:px-2 py-1 md:py-1.5 focus:outline-none focus:ring-2 focus:ring-gray-400 pr-5 md:pr-6 text-xs md:text-sm">
+                                        <span class="absolute right-4 md:right-6 top-1/2 -translate-y-1/2 text-gray-400 text-[10px] md:text-xs">g</span>
                                     </td>
 
                                     <!-- Susut % -->
-                                    <td class="px-4 py-3 relative">
-                                        <input type="number" v-model.number="row.wastePercent" min="0" max="99" class="w-full border border-gray-300 rounded px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-gray-400 pr-6">
-                                        <span class="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 text-xs">%</span>
+                                    <td class="px-2 md:px-4 py-2 md:py-3 relative">
+                                        <input type="number" v-model.number="row.wastePercent" min="0" max="99" class="w-full border border-gray-300 rounded px-1.5 md:px-2 py-1 md:py-1.5 focus:outline-none focus:ring-2 focus:ring-gray-400 pr-5 md:pr-6 text-xs md:text-sm">
+                                        <span class="absolute right-4 md:right-6 top-1/2 -translate-y-1/2 text-gray-400 text-[10px] md:text-xs">%</span>
                                     </td>
 
                                     <!-- Safety Stock % -->
-                                    <td class="px-4 py-3 relative">
-                                        <input type="number" v-model.number="row.safetyPercent" min="0" class="w-full border border-gray-300 rounded px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-gray-400 pr-6">
-                                        <span class="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 text-xs">%</span>
+                                    <td class="px-2 md:px-4 py-2 md:py-3 relative">
+                                        <input type="number" v-model.number="row.safetyPercent" min="0" class="w-full border border-gray-300 rounded px-1.5 md:px-2 py-1 md:py-1.5 focus:outline-none focus:ring-2 focus:ring-gray-400 pr-5 md:pr-6 text-xs md:text-sm">
+                                        <span class="absolute right-4 md:right-6 top-1/2 -translate-y-1/2 text-gray-400 text-[10px] md:text-xs">%</span>
                                     </td>
 
                                     <!-- Harga/Kg -->
-                                    <td class="px-4 py-3">
-                                        <input type="number" v-model.number="row.pricePerKg" min="0" step="500" class="w-full border border-gray-300 rounded px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-gray-400">
+                                    <td class="px-2 md:px-4 py-2 md:py-3">
+                                        <input type="number" v-model.number="row.pricePerKg" min="0" step="500" class="w-full border border-gray-300 rounded px-1.5 md:px-2 py-1 md:py-1.5 focus:outline-none focus:ring-2 focus:ring-gray-400 text-xs md:text-sm">
                                     </td>
 
                                     <!-- Output: Total Kg -->
-                                    <td class="px-4 py-3 text-right font-mono font-semibold text-gray-700 bg-gray-50/50">
+                                    <td class="px-2 md:px-4 py-2 md:py-3 text-right font-mono font-semibold text-gray-700 bg-gray-50/50">
                                         {{ formatNumber(calculateRow(row).kg) }} Kg
                                     </td>
 
                                     <!-- Output: Total Biaya -->
-                                    <td class="px-4 py-3 text-right font-mono font-bold" :class="table.colorText + ' bg-gray-50/50'">
+                                    <td class="px-3 md:px-4 py-2 md:py-3 text-right font-mono font-bold" :class="table.colorText + ' bg-gray-50/50'">
                                         {{ formatCurrency(calculateRow(row).cost) }}
                                     </td>
                                 </tr>
                             </tbody>
+                            <!-- SUMMARY PER TABEL -->
+                            <tfoot class="bg-gray-100 border-t-2 border-gray-300">
+                                <tr>
+                                    <td colspan="7" class="px-3 md:px-4 py-2 md:py-3 text-right font-bold text-gray-700 uppercase text-[10px] md:text-xs tracking-wider">
+                                        Subtotal {{ table.title }}:
+                                    </td>
+                                    <td class="px-2 md:px-4 py-2 md:py-3 text-right font-mono font-bold text-gray-900 text-xs md:text-sm">
+                                        {{ formatNumber(calculateTableTotal(table).kg) }} Kg
+                                    </td>
+                                    <td class="px-3 md:px-4 py-2 md:py-3 text-right font-mono font-bold text-xs md:text-sm" :class="table.colorText">
+                                        {{ formatCurrency(calculateTableTotal(table).cost) }}
+                                    </td>
+                                </tr>
+                            </tfoot>
                         </table>
                     </div>
                 </div>
             </div>
 
-            <!-- Grand Summary Section (Menjumlahkan seluruh tabel) -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12 border-t pt-8">
-                <!-- Card Total Berat -->
-                <div class="bg-blue-600 text-white rounded-xl p-6 shadow-lg flex justify-between items-center">
-                    <div>
-                        <h3 class="text-blue-100 text-sm uppercase tracking-wider font-semibold">Total Seluruh Berat Bahan</h3>
-                        <p class="text-3xl font-bold mt-1">{{ formatNumber(grandTotalKg) }} <span class="text-lg font-normal">Kg</span></p>
+            <!-- ========================================== -->
+            <!-- NEW: DETAILED SUMMARY SECTION PER CATEGORY -->
+            <!-- ========================================== -->
+            <div class="mt-8 md:mt-12 mb-6">
+                <h2 class="text-xl md:text-2xl font-bold text-gray-800 border-b-2 border-gray-200 pb-3 mb-4 md:mb-6">
+                    Rincian Kebutuhan per Jenjang (Spesifik)
+                </h2>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                    <div v-for="cat in detailedSummary" :key="cat.category" class="bg-white border border-gray-200 rounded-xl p-4 md:p-5 shadow-sm keep-together">
+                        <!-- Judul Jenjang -->
+                        <h3 class="font-bold text-lg md:text-xl text-indigo-700 mb-3 flex items-center justify-between border-b pb-2">
+                            {{ cat.category }}
+                            <span class="text-xs md:text-sm bg-indigo-100 text-indigo-800 py-1 px-2 rounded-lg font-semibold">
+                                {{ cat.maxPortion }} Porsi
+                            </span>
+                        </h3>
+                        
+                        <!-- List Bahan -->
+                        <ul class="space-y-3 mb-4">
+                            <li v-for="item in cat.items" :key="item.name + item.type" class="flex justify-between items-center text-xs md:text-sm">
+                                <div class="flex flex-col">
+                                    <span class="font-bold text-gray-800">{{ item.name }}</span>
+                                    <span class="text-gray-500 text-[10px] md:text-xs">{{ item.type }} &bull; {{ item.portions }} porsi</span>
+                                </div>
+                                <div class="text-right flex flex-col">
+                                    <span class="font-mono font-semibold text-gray-700">{{ formatNumber(item.kg) }} Kg</span>
+                                    <span class="font-mono text-[10px] md:text-xs font-semibold text-emerald-600">{{ formatCurrency(item.cost) }}</span>
+                                </div>
+                            </li>
+                        </ul>
+                        
+                        <!-- Subtotal per Jenjang -->
+                        <div class="pt-3 border-t border-dashed border-gray-300 flex justify-between items-end">
+                            <span class="text-xs font-bold text-gray-500 uppercase">Subtotal Jenjang</span>
+                            <div class="text-right">
+                                <span class="block font-mono font-bold text-gray-800 text-sm md:text-base">{{ formatNumber(cat.totalKg) }} Kg</span>
+                                <span class="block font-mono font-bold text-indigo-700 text-sm md:text-base">{{ formatCurrency(cat.totalCost) }}</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="bg-blue-500 p-3 rounded-lg bg-opacity-50">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                    
+                    <!-- Pesan Jika Kosong -->
+                    <div v-if="detailedSummary.length === 0" class="col-span-full text-center py-8 bg-white rounded-xl border border-dashed border-gray-300 text-gray-500">
+                        Belum ada data porsi yang diisi. Masukkan jumlah porsi pada tabel di atas.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grand Summary Section (Menjumlahkan seluruh tabel) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mt-6 md:mt-8 keep-together">
+                <!-- Card Total Berat -->
+                <div class="bg-blue-600 text-white rounded-xl p-4 md:p-6 shadow-lg flex justify-between items-center">
+                    <div>
+                        <h3 class="text-blue-100 text-xs md:text-sm uppercase tracking-wider font-semibold">Total Keseluruhan Berat</h3>
+                        <p class="text-2xl md:text-3xl font-bold mt-1">{{ formatNumber(grandTotalKg) }} <span class="text-base md:text-lg font-normal">Kg</span></p>
+                    </div>
+                    <div class="bg-blue-500 p-2 md:p-3 rounded-lg bg-opacity-50">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 md:w-8 md:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
                     </div>
                 </div>
 
                 <!-- Card Total Biaya -->
-                <div class="bg-emerald-600 text-white rounded-xl p-6 shadow-lg flex justify-between items-center">
+                <div class="bg-emerald-600 text-white rounded-xl p-4 md:p-6 shadow-lg flex justify-between items-center">
                     <div>
-                        <h3 class="text-emerald-100 text-sm uppercase tracking-wider font-semibold">Estimasi Total Anggaran</h3>
-                        <p class="text-3xl font-bold mt-1">{{ formatCurrency(grandTotalCost) }}</p>
+                        <h3 class="text-emerald-100 text-xs md:text-sm uppercase tracking-wider font-semibold">Grand Total Anggaran</h3>
+                        <p class="text-2xl md:text-3xl font-bold mt-1">{{ formatCurrency(grandTotalCost) }}</p>
                     </div>
-                    <div class="bg-emerald-500 p-3 rounded-lg bg-opacity-50">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    <div class="bg-emerald-500 p-2 md:p-3 rounded-lg bg-opacity-50">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 md:w-8 md:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
                     </div>
                 </div>
             </div>
         </div> <!-- End of pdf-content wrapper -->
 
-        <!-- Logic Breakdown Info -->
-        <div class="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800" data-html2canvas-ignore="true">
-            <strong>Catatan Logika Perhitungan:</strong><br>
-            <ul class="list-disc ml-5 mt-1 space-y-1 text-yellow-700">
-                <li>Gross = (Porsi × Gram) / (1 - %Susut)</li>
-                <li>Final = Gross × (1 + %Safety)</li>
-                <li>Semua output dikonversi otomatis ke satuan Kilogram (Kg).</li>
-                <li>Ringkasan biaya adalah total gabungan dari Tabel Karbohidrat, Protein, Serat, dan Lemak.</li>
-            </ul>
-        </div>
-
         <!-- Custom Reset Confirmation Modal -->
         <transition name="modal">
             <div v-if="showResetModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-4">
                 <div class="bg-white rounded-xl shadow-xl max-w-sm w-full p-6 text-center">
-                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 text-red-500">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    <div class="w-12 h-12 md:w-16 md:h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 text-red-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 md:w-8 md:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                     </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-2">Reset Data?</h3>
-                    <p class="text-gray-500 mb-6 text-sm">Semua data input (porsi, gram, harga) di <b>semua tabel</b> akan diubah menjadi nol. Tindakan ini tidak dapat dibatalkan.</p>
+                    <h3 class="text-lg md:text-xl font-bold text-gray-900 mb-2">Reset Data?</h3>
+                    <p class="text-gray-500 mb-6 text-xs md:text-sm">Semua data input (porsi, gram, harga) di <b>semua tabel</b> akan diubah menjadi nol. Tindakan ini tidak dapat dibatalkan.</p>
                     <div class="flex gap-3 justify-center">
-                        <button @click="showResetModal = false" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg transition">
+                        <button @click="showResetModal = false" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg transition text-sm">
                             Batal
                         </button>
-                        <button @click="executeReset" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition shadow-md shadow-red-500/30">
+                        <button @click="executeReset" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition shadow-md shadow-red-500/30 text-sm">
                             Ya, Reset Semua
                         </button>
                     </div>
@@ -213,12 +273,13 @@
         // Kategori standar untuk setiap tabel
         const categories = ['PAUD/TK', 'SD 1-3', 'SD 4-6', 'SMK', 'GURU', 'BUSUI', 'BUMIL'];
 
-        // Helper untuk men-generate baris kosong dengan porsi berdasarkan input karbo (agar tidak nol semua di awal)
+        // Helper untuk men-generate baris kosong
         const generateRows = (defaultItem, defaultGrams, defaultPrice, defaultPortionsArray) => {
             return categories.map((cat, i) => ({
                 category: cat,
                 portions: defaultPortionsArray[i],
                 itemType: defaultItem,
+                customItemName: '', // Menyimpan input manual
                 gramsPerPortion: defaultGrams,
                 wastePercent: 5,
                 safetyPercent: 10,
@@ -226,13 +287,12 @@
             }));
         };
 
-        const initialPortions = [100, 150, 150, 200, 50, 10, 10]; // Sesuai porsi awal sebelumnya
+        const initialPortions = [100, 150, 150, 200, 50, 10, 10]; 
 
         createApp({
             data() {
                 return {
                     showResetModal: false,
-                    // Struktur Data Dinamis: Array berisi 4 konfigurasi Tabel
                     tables: [
                         {
                             title: 'Tabel Karbohidrat',
@@ -240,43 +300,52 @@
                             icon: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
                             colorText: 'text-amber-700',
                             colorBg: 'bg-amber-100',
-                            options: ['Beras (Nasi)', 'Kentang', 'Mie Kering', 'Ubi', 'Singkong', 'Jagung'],
+                            options: ['Beras (Nasi)', 'Kentang', 'Mie Kering', 'Ubi', 'Singkong', 'Jagung', 'Lainnya (Isi Manual)'],
                             rows: [
-                                { category: 'PAUD/TK', portions: 100, itemType: 'Beras (Nasi)', gramsPerPortion: 60, wastePercent: 5, safetyPercent: 10, pricePerKg: 15000 },
-                                { category: 'SD 1-3', portions: 150, itemType: 'Beras (Nasi)', gramsPerPortion: 80, wastePercent: 5, safetyPercent: 10, pricePerKg: 15000 },
-                                { category: 'SD 4-6', portions: 150, itemType: 'Beras (Nasi)', gramsPerPortion: 100, wastePercent: 5, safetyPercent: 10, pricePerKg: 15000 },
-                                { category: 'SMK', portions: 200, itemType: 'Beras (Nasi)', gramsPerPortion: 150, wastePercent: 5, safetyPercent: 10, pricePerKg: 15000 },
-                                { category: 'GURU', portions: 50, itemType: 'Beras (Nasi)', gramsPerPortion: 120, wastePercent: 5, safetyPercent: 5, pricePerKg: 15000 },
-                                { category: 'BUSUI', portions: 10, itemType: 'Beras (Nasi)', gramsPerPortion: 150, wastePercent: 5, safetyPercent: 10, pricePerKg: 15000 },
-                                { category: 'BUMIL', portions: 10, itemType: 'Beras (Nasi)', gramsPerPortion: 130, wastePercent: 5, safetyPercent: 10, pricePerKg: 15000 },
+                                { category: 'PAUD/TK', portions: 100, itemType: 'Beras (Nasi)', customItemName: '', gramsPerPortion: 60, wastePercent: 5, safetyPercent: 10, pricePerKg: 15000 },
+                                { category: 'SD 1-3', portions: 150, itemType: 'Beras (Nasi)', customItemName: '', gramsPerPortion: 80, wastePercent: 5, safetyPercent: 10, pricePerKg: 15000 },
+                                { category: 'SD 4-6', portions: 150, itemType: 'Beras (Nasi)', customItemName: '', gramsPerPortion: 100, wastePercent: 5, safetyPercent: 10, pricePerKg: 15000 },
+                                { category: 'SMK', portions: 200, itemType: 'Beras (Nasi)', customItemName: '', gramsPerPortion: 150, wastePercent: 5, safetyPercent: 10, pricePerKg: 15000 },
+                                { category: 'GURU', portions: 50, itemType: 'Beras (Nasi)', customItemName: '', gramsPerPortion: 120, wastePercent: 5, safetyPercent: 5, pricePerKg: 15000 },
+                                { category: 'BUSUI', portions: 10, itemType: 'Beras (Nasi)', customItemName: '', gramsPerPortion: 150, wastePercent: 5, safetyPercent: 10, pricePerKg: 15000 },
+                                { category: 'BUMIL', portions: 10, itemType: 'Beras (Nasi)', customItemName: '', gramsPerPortion: 130, wastePercent: 5, safetyPercent: 10, pricePerKg: 15000 },
                             ]
                         },
                         {
-                            title: 'Tabel Protein (Hewani & Nabati)',
-                            columnLabel: 'Jenis Protein',
+                            title: 'Tabel Protein Hewani',
+                            columnLabel: 'Jenis Protein Hewani',
                             icon: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 11-5.5 5.5a2.828 2.828 0 1 1-4-4L14 7l4 4Z"/><path d="m18 11 4-4"/><path d="m5.5 16.5-4 4"/></svg>',
                             colorText: 'text-red-700',
                             colorBg: 'bg-red-100',
-                            options: ['Ayam', 'Daging Sapi', 'Ikan Lele', 'Telur Ayam', 'Tahu', 'Tempe'],
+                            options: ['Ayam', 'Daging Sapi', 'Ikan Lele', 'Ikan Nila', 'Telur Ayam', 'Lainnya (Isi Manual)'],
                             rows: generateRows('Ayam', 50, 38000, initialPortions)
                         },
                         {
-                            title: 'Tabel Serat (Sayur & Buah)',
-                            columnLabel: 'Jenis Sayur/Buah',
+                            title: 'Tabel Protein Nabati',
+                            columnLabel: 'Jenis Protein Nabati',
+                            icon: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+                            colorText: 'text-orange-700',
+                            colorBg: 'bg-orange-100',
+                            options: ['Tahu', 'Tempe', 'Kacang Hijau', 'Kacang Merah', 'Lainnya (Isi Manual)'],
+                            rows: generateRows('Tempe', 50, 15000, initialPortions)
+                        },
+                        {
+                            title: 'Tabel Sayur',
+                            columnLabel: 'Jenis Sayur',
                             icon: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a2.98 2.98 0 0 0 2.818-2H9.182A2.98 2.98 0 0 0 12 22Z"/><path d="M19 15v-3a7 7 0 0 0-14 0v3c0 1.657-3 1.657-3 3v1h20v-1c0-1.343-3-1.343-3-3Z"/><path d="M12 2v3"/></svg>',
                             colorText: 'text-emerald-700',
                             colorBg: 'bg-emerald-100',
-                            options: ['Bayam', 'Kangkung', 'Wortel', 'Brokoli', 'Pisang', 'Jeruk', 'Semangka'],
+                            options: ['Bayam', 'Kangkung', 'Wortel', 'Brokoli', 'Buncis', 'Sawi', 'Lainnya (Isi Manual)'],
                             rows: generateRows('Bayam', 40, 12000, initialPortions)
                         },
                         {
-                            title: 'Tabel Lemak / Minyak',
-                            columnLabel: 'Jenis Lemak',
-                            icon: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>',
-                            colorText: 'text-yellow-700',
-                            colorBg: 'bg-yellow-100',
-                            options: ['Minyak Goreng', 'Mentega', 'Margarin', 'Santan'],
-                            rows: generateRows('Minyak Goreng', 10, 18000, initialPortions)
+                            title: 'Tabel Buah',
+                            columnLabel: 'Jenis Buah',
+                            icon: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 2v2"/><path d="M13.5 4.5 12 12"/></svg>',
+                            colorText: 'text-purple-700',
+                            colorBg: 'bg-purple-100',
+                            options: ['Pisang', 'Jeruk', 'Semangka', 'Pepaya', 'Melon', 'Lainnya (Isi Manual)'],
+                            rows: generateRows('Pisang', 50, 15000, initialPortions)
                         }
                     ]
                 }
@@ -302,6 +371,17 @@
                         cost: cost
                     };
                 },
+
+                // Menghitung Subtotal untuk masing-masing tabel individu
+                calculateTableTotal(table) {
+                    return table.rows.reduce((acc, row) => {
+                        const rowCalc = this.calculateRow(row);
+                        return {
+                            kg: acc.kg + rowCalc.kg,
+                            cost: acc.cost + rowCalc.cost
+                        };
+                    }, { kg: 0, cost: 0 });
+                },
                 
                 // Formatter Rupiah
                 formatCurrency(value) {
@@ -319,7 +399,6 @@
                 },
                 
                 executeReset() {
-                    // Reset semua baris di setiap tabel
                     this.tables.forEach(table => {
                         table.rows.forEach(row => {
                             row.portions = 0;
@@ -327,6 +406,7 @@
                             row.pricePerKg = 0;
                             row.wastePercent = 0;
                             row.safetyPercent = 0;
+                            row.customItemName = '';
                         });
                     });
                     this.showResetModal = false;
@@ -336,41 +416,87 @@
                 exportToPDF() {
                     const element = document.getElementById('pdf-content');
                     
-                    // 1. Cari elemen pembungkus semua tabel
                     const tableContainers = element.querySelectorAll('.table-container');
                     const wrapperContainers = element.querySelectorAll('.overflow-hidden');
 
-                    // 2. Lepas sementara pembatas overflow agar tabel memanjang penuh untuk direkam
+                    // Hapus limit scroll agar terekam semua
                     tableContainers.forEach(tc => tc.classList.remove('overflow-x-auto'));
                     wrapperContainers.forEach(wc => wc.classList.remove('overflow-hidden'));
                     
                     const opt = {
-                        margin:       [0.4, 0.4, 0.4, 0.4], // top, left, bottom, right
+                        margin:       [0.4, 0.4, 0.4, 0.4],
                         filename:     'Rencana-Bahan-Baku-Lengkap.pdf',
                         image:        { type: 'jpeg', quality: 0.98 },
                         html2canvas:  { scale: 2, windowWidth: 1200 }, 
                         jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' }
                     };
 
-                    // 3. Generate PDF, lalu pasang kembali pembatas overflow
                     html2pdf().set(opt).from(element).save().then(() => {
+                        // Kembalikan batas scroll
                         tableContainers.forEach(tc => tc.classList.add('overflow-x-auto'));
                         wrapperContainers.forEach(wc => wc.classList.add('overflow-hidden'));
                     });
                 }
             },
             computed: {
+                // Menghitung summary mendetail per Jenjang (Kategori)
+                detailedSummary() {
+                    const summary = [];
+                    // Mengambil daftar nama kategori (berdasarkan tabel pertama)
+                    const catNames = categories; 
+
+                    catNames.forEach(catName => {
+                        let catData = {
+                            category: catName,
+                            items: [],
+                            totalKg: 0,
+                            totalCost: 0,
+                            maxPortion: 0
+                        };
+
+                        // Kumpulkan item dari setiap tabel untuk kategori ini
+                        this.tables.forEach(table => {
+                            const row = table.rows.find(r => r.category === catName);
+                            if (row && row.portions > 0 && row.gramsPerPortion > 0) {
+                                const calc = this.calculateRow(row);
+                                
+                                // Penentuan nama bahan (jika manual, ambil teks input)
+                                const itemName = row.itemType === 'Lainnya (Isi Manual)' && row.customItemName.trim() !== ''
+                                                 ? row.customItemName 
+                                                 : (row.itemType === 'Lainnya (Isi Manual)' ? 'Bahan Lainnya' : row.itemType);
+                                
+                                catData.items.push({
+                                    type: table.title.replace('Tabel ', ''), // Misal: "Karbohidrat"
+                                    name: itemName,
+                                    portions: row.portions,
+                                    kg: calc.kg,
+                                    cost: calc.cost
+                                });
+                                
+                                catData.totalKg += calc.kg;
+                                catData.totalCost += calc.cost;
+                                
+                                // Set maxPortion untuk badge info jenjang
+                                if (row.portions > catData.maxPortion) {
+                                    catData.maxPortion = row.portions;
+                                }
+                            }
+                        });
+
+                        // Jika ada data di jenjang ini, masukkan ke dalam summary
+                        if (catData.items.length > 0) {
+                            summary.push(catData);
+                        }
+                    });
+
+                    return summary;
+                },
+
                 grandTotalKg() {
-                    // Loop ke setiap tabel, lalu loop ke setiap baris untuk mendapat total kilogram
-                    return this.tables.reduce((acc, table) => {
-                        return acc + table.rows.reduce((rowAcc, row) => rowAcc + this.calculateRow(row).kg, 0);
-                    }, 0);
+                    return this.tables.reduce((acc, table) => acc + this.calculateTableTotal(table).kg, 0);
                 },
                 grandTotalCost() {
-                    // Loop ke setiap tabel, lalu loop ke setiap baris untuk mendapat total biaya
-                    return this.tables.reduce((acc, table) => {
-                        return acc + table.rows.reduce((rowAcc, row) => rowAcc + this.calculateRow(row).cost, 0);
-                    }, 0);
+                    return this.tables.reduce((acc, table) => acc + this.calculateTableTotal(table).cost, 0);
                 }
             }
         }).mount('#app');
